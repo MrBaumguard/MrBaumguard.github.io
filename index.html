@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astrologische Systemanalysen</title>
+    <style>
+        /* Minimalistisches Premium-Design */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0a0f1d; /* Tiefes, edles Nachtblau */
+            color: #f4f4f6; /* Elfenbein/Off-White für sanften Kontrast */
+            font-family: 'Georgia', serif; /* Elegante Serifenschrift */
+            min-height: 250vh; /* Erzeugt genug Scroll-Tiefe zum Testen */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Fixierter Container für das rotierende PNG */
+        .image-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Perfekt zentriert */
+            z-index: 1;
+            pointer-events: none; /* Text bleibt darunter klick- und markierbar */
+            opacity: 0.15; /* Subtil im Hintergrund, nicht ablenkend */
+        }
+
+        .image-container img {
+            width: 400px; /* Größe deines PNGs */
+            height: auto;
+            transition: transform 0.1s ease-out; /* Macht die Drehung extrem geschmeidig */
+        }
+
+        /* Inhaltsschicht über dem Bild */
+        .content {
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+            text-align: center;
+            margin-top: 30vh;
+            padding: 20px;
+        }
+
+        h1 {
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: #d4af37; /* Dezentes Gold */
+        }
+
+        p {
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .spacer {
+            margin-top: 80vh; /* Schafft Raum für den edlen "Weißraum"-Effekt */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="image-container">
+        <img id="rotating-image" src="astrologie.png" alt="Astrologisches Element">
+    </div>
+
+    <div class="content">
+        <h1>Konstellation & Struktur</h1>
+        <p>Langjährige Erfahrung in der systemischen Chart-Analyse für Lebens- und Geschäftsführung.</p>
+        
+        <div class="spacer"></div>
+        
+        <p><i>„Die Sterne zwingen nicht, sie weisen den Weg.“</i></p>
+        <p>Scrollen Sie, um die Bewegung der Zeitqualität zu visualisieren.</p>
+        
+        <div class="spacer"></div>
+        
+        <p>Diskrete Anfragen und Konsultationswünsche via Reddit oder direkt per Mail.</p>
+    </div>
+
+    <script>
+        // JavaScript für die präzise Scroll-Rotation
+        const image = document.getElementById('rotating-image');
+
+        window.addEventListener('scroll', () => {
+            // Ermittelt, wie viele Pixel bereits nach unten gescrollt wurde
+            let scrollTop = window.scrollY;
+
+            // FAKTOR ZUR ANPASSUNG DER DREHUNG:
+            // 0.1 bedeutet: Pro 10 Pixel Scrollen dreht sich das Bild um 1 Grad.
+            // Ändere diesen Wert, um die Drehung schneller oder langsamer zu machen.
+            let rotationAngle = scrollTop * 0.1; 
+
+            // Wichtig: Da das Bild im CSS bereits mit "translate" zentriert wurde,
+            // müssen wir das im JavaScript beibehalten und das "rotate" hinten anhängen.
+            image.style.transform = `rotate(${rotationAngle}deg)`;
+        });
+    </script>
+
+</body>
+</html>
