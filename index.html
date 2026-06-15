@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
-<head>
+<html lang="en"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Astrologer MrBaumguard</title>
@@ -10,30 +9,138 @@
             margin: 0;
             padding: 0;
             background-color: #0a0f1d; /* Tiefes, edles Nachtblau */
-            color: #f4f4f6; /* Elfenbein/Off-White für sanften Kontrast */
-            font-family: 'Georgia', serif; /* Elegante Serifenschrift */
-            min-height: 250vh; /* Erzeugt genug Scroll-Tiefe zum Testen */
+            color: #f4f4f6; /* Elfenbein/Off-White */
+            font-family: 'Georgia', serif;
+            min-height: 300vh; /* Etwas mehr Tiefe, da wir in der Mitte starten */
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* Verhindert kurzes Flackern beim automatischen Scrollen zum Start */
+            scroll-behavior: auto; 
         }
 
-        /* Fixierter Container für das rotierende PNG */
-        .image-container {
+        /* BASIS-STYLES FÜR BEIDE ASTROLABE-EBENEN */
+        .astrolabe-layer {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%); /* Perfekt zentriert */
-            z-index: 1;
-            pointer-events: none; /* Text bleibt darunter klick- und markierbar */
-            opacity: 0.5; /* Subtil im Hintergrund, nicht ablenkend */
+            pointer-events: none; /* Text bleibt klickbar */
         }
 
-        .image-container img {
-            width: 400px; /* Größe deines PNGs */
+        .astrolabe-layer img {
+            width: 450px; /* Leicht vergrößert für besseren Impact */
             height: auto;
-            transition: transform 0.1s ease-out; /* Macht die Drehung extrem geschmeidig */
         }
+
+        /* Ebene 1: Das UNBEWEGTE Hintergrund-PNG (Mater / Plate) */
+        #static-background {
+            z-index: 1;
+            opacity: 0.25; /* Etwas dezenter im Hintergrund */
+        }
+
+        /* Ebene 2: Das ROTIERENDE Vordergrund-PNG (Rete) */
+        #rotating-foreground {
+            z-index: 2;
+            opacity: 0.4; /* Ein wenig dominanter im Vordergrund */
+        }
+
+        #rotating-image {
+            transition: transform 0.15s ease-out; /* Seidenweiche Federung */
+        }
+
+        /* Inhaltsschicht GANZ OBEN über dem Instrument */
+        .content {
+            position: relative;
+            z-index: 3;
+            max-width: 600px;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Drei Sektionen, um das Scrollen nach OBEN und UNTEN zu füttern */
+        .section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: #d4af37; /* Gold */
+            line-height: 1.4;
+        }
+
+        p {
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="astrolabe-layer" id="static-background">
+        <img src="astrologie2.png" alt="Astrolabe Mater">
+    </div>
+
+    <div class="astrolabe-layer" id="rotating-foreground">
+        <img id="rotating-image" src="astrologie.png" alt="Astrolabe Rete">
+    </div>
+
+    <div class="content">
+        
+        <section class="section">
+            <p><i>Space for Future Archives or The Allocation Registry...</i></p>
+            <p>↑ Scroll up to explore deeper metrics ↑</p>
+        </section>
+
+        <section class="section" id="start-center">
+            <h1>Astrologer<br>Martin Emanuel Baumguard</h1>
+            <p>Let me show you the Stars</p>
+            <p><small>Scroll in either direction to align the time quality.</small></p>
+        </section>
+        
+        <section class="section">
+            <p><i>„Die Sterne zwingen nicht, sie weisen den Weg.“</i></p>
+            <br>
+            <p>Discrete inquiries and consultation requests via Reddit or directly via encrypted mail channels.</p>
+        </section>
+
+    </div>
+
+    <script>
+        // 1. AUTOMATISCHER START IN DER SEITENMITTE
+        // Sobald das HTML geladen ist, springt der Browser exakt zur Mitte
+        document.addEventListener("DOMContentLoaded", () => {
+            const middleOfPage = (document.documentElement.scrollHeight - window.innerHeight) / 2;
+            window.scrollTo(0, middleOfPage);
+            
+            // Erst nach dem Initial-Scroll aktivieren wir die "smooth" Scroll-Erfahrung für den Nutzer
+            setTimeout(() => {
+                document.documentElement.style.scrollBehavior = "smooth";
+            }, 100);
+        });
+
+        // 2. PRÄZISE SCROLL-ROTATION (NUR FÜR DIE RETE)
+        const rotatingImage = document.getElementById('rotating-image');
+
+        window.addEventListener('scroll', () => {
+            let scrollTop = window.scrollY;
+            
+            // Berechnung des Winkels basierend auf den gescrollten Pixeln
+            let rotationAngle = scrollTop * 0.1; 
+
+            // Rotation ausführen (Zentrierung bleibt durch CSS gewahrt)
+            rotatingImage.style.transform = `rotate(${rotationAngle}deg)`;
+        });
+    </script>
+
+</body>
+</html>
 
         /* Inhaltsschicht über dem Bild */
         .content {
