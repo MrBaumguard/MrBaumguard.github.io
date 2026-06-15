@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en"> <head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Astrologer MrBaumguard</title>
@@ -11,11 +12,10 @@
             background-color: #0a0f1d; /* Tiefes, edles Nachtblau */
             color: #f4f4f6; /* Elfenbein/Off-White */
             font-family: 'Georgia', serif;
-            min-height: 300vh; /* Etwas mehr Tiefe, da wir in der Mitte starten */
+            min-height: 300vh; /* Genug Tiefe für den Mittelstart */
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* Verhindert kurzes Flackern beim automatischen Scrollen zum Start */
             scroll-behavior: auto; 
         }
 
@@ -29,20 +29,20 @@
         }
 
         .astrolabe-layer img {
-            width: 450px; /* Leicht vergrößert für besseren Impact */
+            width: 450px; 
             height: auto;
         }
 
         /* Ebene 1: Das UNBEWEGTE Hintergrund-PNG (Mater / Plate) */
         #static-background {
             z-index: 1;
-            opacity: 0.25; /* Etwas dezenter im Hintergrund */
+            opacity: 0.25; 
         }
 
         /* Ebene 2: Das ROTIERENDE Vordergrund-PNG (Rete) */
         #rotating-foreground {
             z-index: 2;
-            opacity: 0.4; /* Ein wenig dominanter im Vordergrund */
+            opacity: 0.4; 
         }
 
         #rotating-image {
@@ -59,7 +59,7 @@
             box-sizing: border-box;
         }
 
-        /* Drei Sektionen, um das Scrollen nach OBEN und UNTEN zu füttern */
+        /* Drei Sektionen für das Scrollen nach OBEN und UNTEN */
         .section {
             min-height: 100vh;
             display: flex;
@@ -114,12 +114,11 @@
 
     <script>
         // 1. AUTOMATISCHER START IN DER SEITENMITTE
-        // Sobald das HTML geladen ist, springt der Browser exakt zur Mitte
         document.addEventListener("DOMContentLoaded", () => {
             const middleOfPage = (document.documentElement.scrollHeight - window.innerHeight) / 2;
             window.scrollTo(0, middleOfPage);
             
-            // Erst nach dem Initial-Scroll aktivieren wir die "smooth" Scroll-Erfahrung für den Nutzer
+            // Erst nach dem Initial-Scroll aktivieren wir die "smooth" Scroll-Erfahrung
             setTimeout(() => {
                 document.documentElement.style.scrollBehavior = "smooth";
             }, 100);
@@ -130,80 +129,8 @@
 
         window.addEventListener('scroll', () => {
             let scrollTop = window.scrollY;
-            
-            // Berechnung des Winkels basierend auf den gescrollten Pixeln
             let rotationAngle = scrollTop * 0.1; 
-
-            // Rotation ausführen (Zentrierung bleibt durch CSS gewahrt)
             rotatingImage.style.transform = `rotate(${rotationAngle}deg)`;
-        });
-    </script>
-
-</body>
-</html>
-
-        /* Inhaltsschicht über dem Bild */
-        .content {
-            position: relative;
-            z-index: 2;
-            max-width: 600px;
-            text-align: center;
-            margin-top: 30vh;
-            padding: 20px;
-        }
-
-        h1 {
-            font-weight: 300;
-            letter-spacing: 2px;
-            color: #d4af37; /* Dezentes Gold */
-        }
-
-        p {
-            line-height: 1.8;
-            font-size: 1.1rem;
-        }
-
-        .spacer {
-            margin-top: 80vh; /* Schafft Raum für den edlen "Weißraum"-Effekt */
-        }
-    </style>
-</head>
-<body>
-
-    <div class="image-container">
-        <img id="rotating-image" src="astrologie.png" alt="Astrologisches Element">
-    </div>
-
-    <div class="content">
-        <h1>Astrologer<br>Martin Emanuel Baumguard</h1>
-        <p>Let me show you the Stars</p>
-        
-        <div class="spacer"></div>
-        
-        <p><i>„Die Sterne zwingen nicht, sie weisen den Weg.“</i></p>
-        <p>Scrollen Sie, um die Bewegung der Zeitqualität zu visualisieren.</p>
-        
-        <div class="spacer"></div>
-        
-        <p>Diskrete Anfragen und Konsultationswünsche via Reddit oder direkt per Mail.</p>
-    </div>
-
-    <script>
-        // JavaScript für die präzise Scroll-Rotation
-        const image = document.getElementById('rotating-image');
-
-        window.addEventListener('scroll', () => {
-            // Ermittelt, wie viele Pixel bereits nach unten gescrollt wurde
-            let scrollTop = window.scrollY;
-
-            // FAKTOR ZUR ANPASSUNG DER DREHUNG:
-            // 0.1 bedeutet: Pro 10 Pixel Scrollen dreht sich das Bild um 1 Grad.
-            // Ändere diesen Wert, um die Drehung schneller oder langsamer zu machen.
-            let rotationAngle = scrollTop * 0.1; 
-
-            // Wichtig: Da das Bild im CSS bereits mit "translate" zentriert wurde,
-            // müssen wir das im JavaScript beibehalten und das "rotate" hinten anhängen.
-            image.style.transform = `rotate(${rotationAngle}deg)`;
         });
     </script>
 
