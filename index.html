@@ -12,61 +12,98 @@
             background-color: #0a0f1d; /* Tiefes, edles Nachtblau */
             color: #f4f4f6; /* Elfenbein/Off-White */
             font-family: 'Georgia', serif;
-            min-height: 300vh; /* Genug Tiefe für den Mittelstart und feines Scrollen */
+            min-height: 300vh; /* Genug Scroll-Tiefe für das mechanische Erlebnis */
             display: flex;
             flex-direction: column;
             align-items: center;
             scroll-behavior: auto; 
         }
 
-        /* STABILE BASIS-STYLES FÜR BEIDE ASTROLABE-EBENEN */
+        /* STABILE BASIS-STYLES FÜR ALLE UHRWERK-EBENEN */
         .astrolabe-layer {
             position: fixed;
-            /* svh (Small Viewport Height) fixiert die Mitte bombenfest auf dem Handy */
-            top: 50svh; 
+            top: 50svh; /* Stabile vertikale Zentrierung auf Smartphones */
             left: 50%;
-            /* Der Container hält die Zentrierung starr im CSS */
-            transform: translate(-50%, -50%); 
-            pointer-events: none; /* Text bleibt darunter klickbar */
+            transform: translate(-50%, -50%); /* Hält die gemeinsame Mittelachse */
+            pointer-events: none; /* Text bleibt klickbar */
         }
 
-        /* Einheitliche Skalierung der Bilder */
+        /* Einheitliche Skalierung für alle mechanischen Bauteile */
         .astrolabe-layer img {
-            width: 85vw; /* Skaliert perfekt auf Smartphone-Bildschirmen */
-            max-width: 450px; /* Begrenzung für große Desktop-Monitore */
+            width: 85vw;
+            max-width: 450px;
             height: auto;
             display: block;
+            will-change: transform; /* Schiebt die Berechnung auf die GPU */
         }
 
-        /* Ebene 1: Das UNBEWEGTE Hintergrund-PNG (Mater / Plate) */
-        #static-background {
+        /* EBENEN-HIERARCHIE (Z-INDEX) */
+        #layer-mater {
             z-index: 1;
-            opacity: 0.25; 
+            opacity: 0.2; /* Fester Hintergrund (AC/DC Horizont) */
         }
 
-        /* Ebene 2: Das ROTIERENDE Vordergrund-PNG (Rete) */
-        #rotating-foreground {
+        #layer-gear-b {
             z-index: 2;
-            opacity: 0.4; 
+            opacity: 0.25; /* Verborgenes/Skelettiertes Umlenkrad unten */
         }
 
-        /* Nur das innere Bild im Vordergrund bekommt die seidenweiche Drehung */
-        #rotating-image {
-            transition: transform 0.1s ease-out; /* Verhindert Ruckeln */
-            will-change: transform; /* Optimiert die Performance auf Mobilgeräten */
+        #layer-zodiac-rete {
+            z-index: 3;
+            opacity: 0.45; /* Haupt-Zodiak-Scheibe mit Zahnrad A */
         }
 
-        /* Inhaltsschicht GANZ OBEN über dem Instrument */
+        #layer-pointer-mc {
+            z-index: 4;
+            opacity: 0.6; /* Der MC/IC-Zeiger ganz vorne mit der Rille */
+        }
+
+        /* Sanfte Dämpfung für die mechanischen Drehbewegungen */
+        #zodiac-rete, #gear-b, #pointer-mc {
+            transition: transform 0.1s ease-out;
+        }
+
+        /* WORLD TIMER LOOK (STADT-UMSCHLATER) */
+        .location-switcher {
+            position: fixed;
+            top: 40px;
+            z-index: 10;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: #8a93a6;
+            background-color: rgba(10, 15, 29, 0.8);
+            padding: 10px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            user-select: none;
+        }
+
+        .location-switcher span {
+            cursor: pointer;
+            transition: color 0.3s ease;
+            padding: 0 5px;
+        }
+
+        .location-switcher span:hover {
+            color: #d4af37; /* Gold-Effekt beim Hover */
+        }
+
+        .location-switcher span.active {
+            color: #d4af37;
+            font-weight: bold;
+        }
+
+        /* INHALTSSCHICHT (TEXTE) */
         .content {
             position: relative;
-            z-index: 3;
+            z-index: 5;
             max-width: 600px;
             text-align: center;
             padding: 20px;
             box-sizing: border-box;
         }
 
-        /* Drei Sektionen für das Scrollen nach OBEN und UNTEN */
         .section {
             min-height: 100vh;
             display: flex;
@@ -78,7 +115,7 @@
         h1 {
             font-weight: 300;
             letter-spacing: 2px;
-            color: #d4af37; /* Gold */
+            color: #d4af37;
             line-height: 1.4;
         }
 
@@ -90,12 +127,26 @@
 </head>
 <body>
 
-    <div class="astrolabe-layer" id="static-background">
-        <img src="astrologie2.png" alt="Astrolabe Mater">
+    <div class="location-switcher">
+        <span id="btn-NY" onclick="changeLocation(40.7, 'NY')">NEW YORK</span> — 
+        <span id="btn-LON" onclick="changeLocation(51.5, 'LON')" class="active">LONDON</span> — 
+        <span id="btn-HK" onclick="changeLocation(22.3, 'HK')">HONG KONG</span>
     </div>
 
-    <div class="astrolabe-layer" id="rotating-foreground">
-        <img id="rotating-image" src="astrologie.png" alt="Astrolabe Rete">
+    <div class="astrolabe-layer" id="layer-mater">
+        <img src="mater.png" alt="Astrolabe Mater">
+    </div>
+
+    <div class="astrolabe-layer" id="layer-gear-b">
+        <img id="gear-b" src="gear_b.png" alt="Driven Gear B">
+    </div>
+
+    <div class="astrolabe-layer" id="layer-zodiac-rete">
+        <img id="zodiac-rete" src="zodiac_rete.png" alt="Zodiac Rete">
+    </div>
+
+    <div class="astrolabe-layer" id="layer-pointer-mc">
+        <img id="pointer-mc" src="pointer_mc.png" alt="MC/IC Pointer">
     </div>
 
     <div class="content">
@@ -108,7 +159,7 @@
         <section class="section" id="start-center">
             <h1>Astrologer<br>Martin Emanuel Baumguard</h1>
             <p>Let me show you the Stars</p>
-            <p><small>Scroll in either direction to align the time quality.</small></p>
+            <p><small>Scroll to align the cosmic clockwork.</small></p>
         </section>
         
         <section class="section">
@@ -120,37 +171,64 @@
     </div>
 
     <script>
+        // MECHANISCHE KONSTANTEN
+        let currentAmplitude = 23.5; // Standard-Basiswert für London (51.5°N)
+
         // 1. AUTOMATISCHER START IN DER SEITENMITTE
         document.addEventListener("DOMContentLoaded", () => {
             const middleOfPage = (document.documentElement.scrollHeight - window.innerHeight) / 2;
             window.scrollTo(0, middleOfPage);
             
-            // Erst nach dem Initial-Scroll aktivieren wir die "smooth" Scroll-Erfahrung
             setTimeout(() => {
                 document.documentElement.style.scrollBehavior = "smooth";
             }, 100);
         });
 
-        // 2. ÄSTHETISCH SCHLÜSSIGE SCROLL-ROTATION (PROZENTUAL GEKOPPELT)
-        const rotatingImage = document.getElementById('rotating-image');
+        // 2. FUNKTION FÜR DEN WORLD TIMER SWITCHER
+        function changeLocation(latitude, cityKey) {
+            // Berechnet die neue mechanische Amplitude basierend auf der geografischen Breite
+            // London (51.5) dient als kalibrierter Maximalwert für die Pendelbewegung
+            currentAmplitude = 23.5 * (latitude / 51.5);
 
-        window.addEventListener('scroll', () => {
+            // Visuelles Update der Buttons (Active-Klasse verschieben)
+            document.querySelectorAll('.location-switcher span').forEach(span => {
+                span.classList.remove('active');
+            });
+            document.getElementById(`btn-${cityKey}`).classList.add('active');
+
+            // Triggert ein sofortiges Neu-Berechnen der Grafikpositionen nach dem Klick
+            updateClockwork();
+        }
+
+        // 3. DIE GETRIEBE- UND PENDEL-LOGIK (ZENTRALE RECHENRAST)
+        const zodiacRete = document.getElementById('zodiac-rete');
+        const gearB = document.getElementById('gear-b');
+        const pointerMc = document.getElementById('pointer-mc');
+
+        function updateClockwork() {
             let scrollTop = window.scrollY;
             let maxScroll = document.documentElement.scrollHeight - window.innerHeight;
             
-            // Sicherheitsabfrage für mobile Browserleisten
             if (maxScroll <= 0) return;
 
-            // Fortschritt berechnen (Wert zwischen 0.0 und 1.0)
             let scrollPercent = scrollTop / maxScroll;
             
-            // Ändere diesen Wert (360), wenn du weniger Drehung willst (z.B. 180 für einen Halbkreis)
-            let maxRotation = 360; 
-            let rotationAngle = scrollPercent * maxRotation; 
-            
-            // Da die Zentrierung im CSS-Container liegt, wendet JS hier NUR die Rotation an
-            rotatingImage.style.transform = `rotate(${rotationAngle}deg)`;
-        });
+            // Hauptdrehung (Zodiac-Rete & Zahnrad A laufen im Uhrzeigersinn)
+            let angleA = scrollPercent * 360;
+            zodiacRete.style.transform = `rotate(${angleA}deg)`;
+
+            // Richtungsumkehr (Zahnrad B kontert exakt entgegengesetzt)
+            let angleB = -angleA;
+            gearB.style.transform = `rotate(${angleB}deg)`;
+
+            // Exzenter-Kopplung (Simuliert das Gleiten des Stifts in der hohlen Rille)
+            let radians = angleA * (Math.PI / 180);
+            let pointerAngle = Math.sin(radians) * currentAmplitude;
+            pointerMc.style.transform = `rotate(${pointerAngle}deg)`;
+        }
+
+        // Event-Listener an das Scrollen binden
+        window.addEventListener('scroll', updateClockwork);
     </script>
 
 </body>
