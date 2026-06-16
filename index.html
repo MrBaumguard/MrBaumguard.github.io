@@ -177,64 +177,75 @@
     </div>
 
     <script>
-        // MECHANISCHE KONSTANTEN
-        let currentAmplitude = 23.5; // Standard-Basiswert für London (51.5°N)
+        // MECHANISCHE VARIABLE (Kalibrierung für die Geometrie)
+let currentLatitude = 51.5; // Startwert: London / deine Basis
 
-        // 1. AUTOMATISCHER START IN DER SEITENMITTE
-        document.addEventListener("DOMContentLoaded", () => {
-            const middleOfPage = (document.documentElement.scrollHeight - window.innerHeight) / 2;
-            window.scrollTo(0, middleOfPage);
-            
-            setTimeout(() => {
-                document.documentElement.style.scrollBehavior = "smooth";
-            }, 100);
-        });
+// 1. AUTOMATISCHER START IN DER SEITENMITTE
+document.addEventListener("DOMContentLoaded", () => {
+    const middleOfPage = (document.documentElement.scrollHeight - window.innerHeight) / 2;
+    window.scrollTo(0, middleOfPage);
+    
+    setTimeout(() => {
+        document.documentElement.style.scrollBehavior = "smooth";
+    }, 100);
+});
 
-        // 2. FUNKTION FÜR DEN WORLD TIMER SWITCHER
-        function changeLocation(latitude, cityKey) {
-            // Berechnet die neue mechanische Amplitude basierend auf der geografischen Breite
-            // London (51.5) dient als kalibrierter Maximalwert für die Pendelbewegung
-            currentAmplitude = 23.5 * (latitude / 51.5);
+// 2. WORLD TIMER SWITCHER
+function changeLocation(latitude, cityKey) {
+    currentLatitude = latitude;
 
-            // Visuelles Update der Buttons (Active-Klasse verschieben)
-            document.querySelectorAll('.location-switcher span').forEach(span => {
-                span.classList.remove('active');
-            });
-            document.getElementById(`btn-${cityKey}`).classList.add('active');
+    document.querySelectorAll('.location-switcher span').forEach(span => {
+        span.classList.remove('active');
+    });
+    document.getElementById(`btn-${cityKey}`).classList.add('active');
 
-            // Triggert ein sofortiges Neu-Berechnen der Grafikpositionen nach dem Klick
-            updateClockwork();
-        }
+    updateClockwork();
+}
 
-        // 3. DIE GETRIEBE- UND PENDEL-LOGIK (ZENTRALE RECHENRAST)
-        const zodiacRete = document.getElementById('zodiac-rete');
-        const gearB = document.getElementById('gear-b');
-        const pointerMc = document.getElementById('pointer-mc');
+// 3. ASYMMETRISCHE EXZENTER-METRIK
+const zodiacRete = document.getElementById('zodiac-rete');
+const gearB = document.getElementById('gear-b');
+const pointerMc = document.getElementById('pointer-mc');
 
-        function updateClockwork() {
-            let scrollTop = window.scrollY;
-            let maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-            
-            if (maxScroll <= 0) return;
+function updateClockwork() {
+    let scrollTop = window.scrollY;
+    let maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    
+    if (maxScroll <= 0) return;
 
-            let scrollPercent = scrollTop / maxScroll;
-            
-            // Hauptdrehung (Zodiac-Rete & Zahnrad A laufen im Uhrzeigersinn)
-            let angleA = scrollPercent * 360;
-            zodiacRete.style.transform = `rotate(${angleA}deg)`;
+    let scrollPercent = scrollTop / maxScroll;
+    
+    // Rete rotiert im Uhrzeigersinn
+    let angleA = scrollPercent * 360;
+    zodiacRete.style.transform = `rotate(${angleA}deg)`;
 
-            // Richtungsumkehr (Zahnrad B kontert exakt entgegengesetzt)
-            let angleB = -angleA;
-            gearB.style.transform = `rotate(${angleB}deg)`;
+    // Gear B kontert im Gegenuhrzeigersinn
+    let angleB = -angleA;
+    gearB.style.transform = `rotate(${angleB}deg)`;
 
-            // Exzenter-Kopplung (Simuliert das Gleiten des Stifts in der hohlen Rille)
-            let radians = angleA * (Math.PI / 180);
-            let pointerAngle = Math.sin(radians) * currentAmplitude;
-            pointerMc.style.transform = `rotate(${pointerAngle}deg)`;
-        }
+    // GEOMETRISCHE KOEPLUNG (Asymmetrisches Pendeln)
+    // 1. Wir definieren den Abstand der beiden Rad-Mittelpunkte (in Pixeln im Code-Raum)
+    let gearDistance = 60; 
+    
+    // 2. Der Radius des Exzenterstifts verändert sich mit der geografischen Breite
+    let exzenterRadius = 35 * (currentLatitude / 51.5); 
 
-        // Event-Listener an das Scrollen binden
-        window.addEventListener('scroll', updateClockwork);
+    // 3. Berechnung der X/Y-Koordinaten des Stifts relativ zum Hauptzentrum (0,0)
+    let radians = angleB * (Math.PI / 180);
+    let exzenterX = Math.sin(radians) * exzenterRadius;
+    let exzenterY = gearDistance + (Math.cos(radians) * exzenterRadius);
+
+    /* 4. DER GENIESTREICH: Math.atan2 berechnet den exakten Winkel zum Stift.
+       Weil exzenterY sich zyklisch dem Zentrum nähert und entfernt,
+       entsteht AUTOMATISCH die schnelle Fahrt oben (Steinbock) und die langsame Fahrt unten (Krebs).
+    */
+    let pointerAngle = Math.atan2(exzenterX, exzenterY) * (180 / Math.PI);
+
+    // Zeiger ausrichten
+    pointerMc.style.transform = `rotate(${pointerAngle}deg)`;
+}
+
+window.addEventListener('scroll', updateClockwork);
     </script>
 
 </body>
