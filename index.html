@@ -12,25 +12,30 @@
             background-color: #0a0f1d; /* Tiefes, edles Nachtblau */
             color: #f4f4f6; /* Elfenbein/Off-White */
             font-family: 'Georgia', serif;
-            min-height: 300vh; /* Genug Tiefe für den Mittelstart */
+            min-height: 300vh; /* Genug Tiefe für den Mittelstart und feines Scrollen */
             display: flex;
             flex-direction: column;
             align-items: center;
             scroll-behavior: auto; 
         }
 
-        /* BASIS-STYLES FÜR BEIDE ASTROLABE-EBENEN */
+        /* STABILE BASIS-STYLES FÜR BEIDE ASTROLABE-EBENEN */
         .astrolabe-layer {
             position: fixed;
-            top: 50%;
+            /* svh (Small Viewport Height) fixiert die Mitte bombenfest auf dem Handy */
+            top: 50svh; 
             left: 50%;
-            transform: translate(-50%, -50%); /* Perfekt zentriert */
-            pointer-events: none; /* Text bleibt klickbar */
+            /* Der Container hält die Zentrierung starr im CSS */
+            transform: translate(-50%, -50%); 
+            pointer-events: none; /* Text bleibt darunter klickbar */
         }
 
+        /* Einheitliche Skalierung der Bilder */
         .astrolabe-layer img {
-            width: 450px; 
+            width: 85vw; /* Skaliert perfekt auf Smartphone-Bildschirmen */
+            max-width: 450px; /* Begrenzung für große Desktop-Monitore */
             height: auto;
+            display: block;
         }
 
         /* Ebene 1: Das UNBEWEGTE Hintergrund-PNG (Mater / Plate) */
@@ -45,8 +50,10 @@
             opacity: 0.4; 
         }
 
+        /* Nur das innere Bild im Vordergrund bekommt die seidenweiche Drehung */
         #rotating-image {
-            transition: transform 0.15s ease-out; /* Seidenweiche Federung */
+            transition: transform 0.1s ease-out; /* Verhindert Ruckeln */
+            will-change: transform; /* Optimiert die Performance auf Mobilgeräten */
         }
 
         /* Inhaltsschicht GANZ OBEN über dem Instrument */
@@ -114,38 +121,36 @@
 
     <script>
         // 1. AUTOMATISCHER START IN DER SEITENMITTE
-document.addEventListener("DOMContentLoaded", () => {
-    const middleOfPage = (document.documentElement.scrollHeight - window.innerHeight) / 2;
-    window.scrollTo(0, middleOfPage);
-    
-    setTimeout(() => {
-        document.documentElement.style.scrollBehavior = "smooth";
-    }, 100);
-});
+        document.addEventListener("DOMContentLoaded", () => {
+            const middleOfPage = (document.documentElement.scrollHeight - window.innerHeight) / 2;
+            window.scrollTo(0, middleOfPage);
+            
+            // Erst nach dem Initial-Scroll aktivieren wir die "smooth" Scroll-Erfahrung
+            setTimeout(() => {
+                document.documentElement.style.scrollBehavior = "smooth";
+            }, 100);
+        });
 
-// 2. ÄSTHETISCH SCHLÜSSIGE SCROLL-ROTATION
-const rotatingImage = document.getElementById('rotating-image');
+        // 2. ÄSTHETISCH SCHLÜSSIGE SCROLL-ROTATION (PROZENTUAL GEKOPPELT)
+        const rotatingImage = document.getElementById('rotating-image');
 
-window.addEventListener('scroll', () => {
-    // Wie viel wurde aktuell gescrollt
-    let scrollTop = window.scrollY;
-    
-    // Wie viel KANN maximal gescrollt werden (Gesamthöhe minus Bildschirmfenster)
-    let maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-    
-    // Der Scroll-Fortschritt als Wert zwischen 0.0 (ganz oben) und 1.0 (ganz unten)
-    let scrollPercent = scrollTop / maxScroll;
-    
-    // MAXIMALER WINKEL: 360 bedeutet eine exakte Volldrehung am Ende der Seite.
-    // Wenn du hier z.B. 180 einträgst, dreht es sich maximal um einen halben Kreis.
-    let maxRotation = 360; 
-    
-    // Berechnung des finalen Winkels
-    let rotationAngle = scrollPercent * maxRotation; 
-    
-    // Rotation auf das Bild anwenden
-    rotatingImage.style.transform = `rotate(${rotationAngle}deg)`;
-});
+        window.addEventListener('scroll', () => {
+            let scrollTop = window.scrollY;
+            let maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            
+            // Sicherheitsabfrage für mobile Browserleisten
+            if (maxScroll <= 0) return;
+
+            // Fortschritt berechnen (Wert zwischen 0.0 und 1.0)
+            let scrollPercent = scrollTop / maxScroll;
+            
+            // Ändere diesen Wert (360), wenn du weniger Drehung willst (z.B. 180 für einen Halbkreis)
+            let maxRotation = 360; 
+            let rotationAngle = scrollPercent * maxRotation; 
+            
+            // Da die Zentrierung im CSS-Container liegt, wendet JS hier NUR die Rotation an
+            rotatingImage.style.transform = `rotate(${rotationAngle}deg)`;
+        });
     </script>
 
 </body>
