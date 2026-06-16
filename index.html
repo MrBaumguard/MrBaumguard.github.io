@@ -44,9 +44,15 @@
         }
 
         #layer-gear-b {
-            z-index: 2;
-            opacity: 0.25; /* Verborgenes/Skelettiertes Umlenkrad unten */
+    z-index: 2;
+    opacity: 0.25; 
+    
+    /* ÄNDERUNG HIER: Statt 50svh schieben wir das Umlenkrad nach unten.
+       Da der Radius der Zahnräder zusammen in den Radius der Rete passt, 
+       ist ein Wert von ca. 58svh bis 60svh meistens der optische Sweetspot. */
+    top: 58svh; 
         }
+        
 
         #layer-zodiac-rete {
             z-index: 3;
