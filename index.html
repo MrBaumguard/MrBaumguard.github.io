@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MrBaumguard Astrology</title>
+    <title>Astrologer MrBaumguard</title>
     <style>
         /* Minimalistisches Premium-Design */
         body {
@@ -12,7 +12,7 @@
             background-color: #0a0f1d; /* Tiefes, edles Nachtblau */
             color: #f4f4f6; /* Elfenbein/Off-White */
             font-family: 'Georgia', serif;
-            min-height: 300vh; /* Genug Scroll-Tiefe für das mechanische Erlebnis */
+            min-height: 300vh; /* Scroll-Tiefe für das mechanische Erlebnis */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -22,46 +22,40 @@
         /* STABILE BASIS-STYLES FÜR ALLE UHRWERK-EBENEN */
         .astrolabe-layer {
             position: fixed;
-            top: 50svh; /* Stabile vertikale Zentrierung auf Smartphones */
+            top: 50svh; /* Hält den gemeinsamen mathematischen Mittelpunkt im Viewport */
             left: 50%;
-            transform: translate(-50%, -50%); /* Hält die gemeinsame Mittelachse */
-            pointer-events: none; /* Text bleibt klickbar */
+            transform: translate(-50%, -50%); 
+            pointer-events: none;
         }
 
-        /* Einheitliche Skalierung für alle mechanischen Bauteile */
+        /* Einheitliche, prozentuale Skalierung für alle mechanischen Bauteile */
         .astrolabe-layer img {
-            width: 85vw;
-            max-width: 450px;
+            width: 85vw; /* Nutzt 85% der Bildschirmbreite auf Handys */
+            max-width: 450px; /* Deckelung für große Desktop-Monitore */
             height: auto;
             display: block;
-            will-change: transform; /* Schiebt die Berechnung auf die GPU */
+            will-change: transform;
         }
 
         /* EBENEN-HIERARCHIE (Z-INDEX) */
         #layer-mater {
             z-index: 1;
-            opacity: 0.4; /* Fester Hintergrund (AC/DC Horizont) */
+            opacity: 0.2; /* Fester Hintergrund (AC/DC Horizont) */
         }
 
         #layer-gear-b {
-    z-index: 2;
-    opacity: 0.45; 
-    
-    /* ÄNDERUNG HIER: Statt 50svh schieben wir das Umlenkrad nach unten.
-       Da der Radius der Zahnräder zusammen in den Radius der Rete passt, 
-       ist ein Wert von ca. 58svh bis 60svh meistens der optische Sweetspot. */
-    top: 58svh; 
+            z-index: 2;
+            opacity: 0.25; /* Umlenkrad unten */
         }
-        
 
         #layer-zodiac-rete {
             z-index: 3;
-            opacity: 0.45; /* Haupt-Zodiak-Scheibe mit Zahnrad A */
+            opacity: 0.45; /* Haupt-Zodiak-Scheibe */
         }
 
         #layer-pointer-mc {
             z-index: 4;
-            opacity: 0.6; /* Der MC/IC-Zeiger ganz vorne mit der Rille */
+            opacity: 0.6; /* Der MC/IC-Zeiger ganz vorne */
         }
 
         /* Sanfte Dämpfung für die mechanischen Drehbewegungen */
@@ -69,7 +63,7 @@
             transition: transform 0.1s ease-out;
         }
 
-        /* WORLD TIMER LOOK (STADT-UMSCHLATER) */
+        /* WORLD TIMER LOOK */
         .location-switcher {
             position: fixed;
             top: 40px;
@@ -92,7 +86,7 @@
         }
 
         .location-switcher span:hover {
-            color: #d4af37; /* Gold-Effekt beim Hover */
+            color: #d4af37;
         }
 
         .location-switcher span.active {
@@ -100,7 +94,7 @@
             font-weight: bold;
         }
 
-        /* INHALTSSCHICHT (TEXTE) */
+        /* INHALTSSCHICHT */
         .content {
             position: relative;
             z-index: 5;
@@ -156,7 +150,6 @@
     </div>
 
     <div class="content">
-        
         <section class="section">
             <p><i>Space for Future Archives or The Allocation Registry...</i></p>
             <p>↑ Scroll up to explore deeper metrics ↑</p>
@@ -173,79 +166,77 @@
             <br>
             <p>Discrete inquiries and consultation requests via Reddit or directly via encrypted mail channels.</p>
         </section>
-
     </div>
 
     <script>
-        // MECHANISCHE VARIABLE (Kalibrierung für die Geometrie)
-let currentLatitude = 51.5; // Startwert: London / deine Basis
+        let currentLatitude = 51.5; // Startwert London
 
-// 1. AUTOMATISCHER START IN DER SEITENMITTE
-document.addEventListener("DOMContentLoaded", () => {
-    const middleOfPage = (document.documentElement.scrollHeight - window.innerHeight) / 2;
-    window.scrollTo(0, middleOfPage);
-    
-    setTimeout(() => {
-        document.documentElement.style.scrollBehavior = "smooth";
-    }, 100);
-});
+        // 1. MITTELSTART BEIM LADEN
+        document.addEventListener("DOMContentLoaded", () => {
+            const middleOfPage = (document.documentElement.scrollHeight - window.innerHeight) / 2;
+            window.scrollTo(0, middleOfPage);
+            
+            setTimeout(() => {
+                document.documentElement.style.scrollBehavior = "smooth";
+            }, 100);
+        });
 
-// 2. WORLD TIMER SWITCHER
-function changeLocation(latitude, cityKey) {
-    currentLatitude = latitude;
+        // 2. STADT WECHSELN
+        function changeLocation(latitude, cityKey) {
+            currentLatitude = latitude;
+            document.querySelectorAll('.location-switcher span').forEach(span => span.classList.remove('active'));
+            document.getElementById(`btn-${cityKey}`).classList.add('active');
+            updateClockwork();
+        }
 
-    document.querySelectorAll('.location-switcher span').forEach(span => {
-        span.classList.remove('active');
-    });
-    document.getElementById(`btn-${cityKey}`).classList.add('active');
+        // 3. RESPONSIVE GETRIEBE-BERECHNUNG
+        const zodiacRete = document.getElementById('zodiac-rete');
+        const gearB = document.getElementById('gear-b');
+        const pointerMc = document.getElementById('pointer-mc');
 
-    updateClockwork();
-}
+        function updateClockwork() {
+            let scrollTop = window.scrollY;
+            let maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            if (maxScroll <= 0) return;
 
-// 3. ASYMMETRISCHE EXZENTER-METRIK
-const zodiacRete = document.getElementById('zodiac-rete');
-const gearB = document.getElementById('gear-b');
-const pointerMc = document.getElementById('pointer-mc');
+            let scrollPercent = scrollTop / maxScroll;
+            
+            // Basis-Rostationen
+            let angleA = scrollPercent * 360;
+            zodiacRete.style.transform = `rotate(${angleA}deg)`;
+            
+            let angleB = -angleA;
 
-function updateClockwork() {
-    let scrollTop = window.scrollY;
-    let maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-    
-    if (maxScroll <= 0) return;
+            // DYNAMISCHE SKALIERUNG (Der Schlüssel zur Responsivität):
+            // Wir messen live, wie viele Pixel das Zahnrad-Bild GERADE AUF DEM BILDSCHIRM breit ist
+            let currentImageWidth = zodiacRete.clientWidth;
 
-    let scrollPercent = scrollTop / maxScroll;
-    
-    // Rete rotiert im Uhrzeigersinn
-    let angleA = scrollPercent * 360;
-    zodiacRete.style.transform = `rotate(${angleA}deg)`;
+            /* PROZENTUALE ABSTÄNDE BEZOGEN AUF DIE BILDGRÖSSE:
+               Wenn das Bild z.B. 450px breit ist, entspricht ein Faktor von 0.133 exakt 60px.
+               Schrumpft das Bild auf dem Handy auf 300px, schrumpft der Abstand automatisch auf 40px!
+            */
+            let gearDistance = currentImageWidth * 0.133; 
+            
+            // Auch der Exzenter-Radius skaliert nun sauber prozentual mit der Bildgröße mit
+            let baseRadius = currentImageWidth * 0.077; // Entspricht ca. 35px bei einer 450px Grafik
+            let exzenterRadius = baseRadius * (currentLatitude / 51.5); 
 
-    // Gear B kontert im Gegenuhrzeigersinn
-    let angleB = -angleA;
-    gearB.style.transform = `rotate(${angleB}deg)`;
+            // Visuelle Platzierung von Gear B korrigieren (Verschiebung nach unten im Code-Raum)
+            // Wir nutzen Translate im JS, damit sich die Achse exakt mitbewegt!
+            gearB.style.transform = `translateY(${gearDistance}px) rotate(${angleB}deg)`;
 
-    // GEOMETRISCHE KOEPLUNG (Asymmetrisches Pendeln)
-    // 1. Wir definieren den Abstand der beiden Rad-Mittelpunkte (in Pixeln im Code-Raum)
-    let gearDistance = 60; 
-    
-    // 2. Der Radius des Exzenterstifts verändert sich mit der geografischen Breite
-    let exzenterRadius = 35 * (currentLatitude / 51.5); 
+            // Asymmetrische Exzenter-Kopplung für den Zeiger
+            let radians = angleB * (Math.PI / 180);
+            let exzenterX = Math.sin(radians) * exzenterRadius;
+            let exzenterY = gearDistance + (Math.cos(radians) * exzenterRadius);
 
-    // 3. Berechnung der X/Y-Koordinaten des Stifts relativ zum Hauptzentrum (0,0)
-    let radians = angleB * (Math.PI / 180);
-    let exzenterX = Math.sin(radians) * exzenterRadius;
-    let exzenterY = gearDistance + (Math.cos(radians) * exzenterRadius);
+            let pointerAngle = Math.atan2(exzenterX, exzenterY) * (180 / Math.PI);
+            pointerMc.style.transform = `rotate(${pointerAngle}deg)`;
+        }
 
-    /* 4. DER GENIESTREICH: Math.atan2 berechnet den exakten Winkel zum Stift.
-       Weil exzenterY sich zyklisch dem Zentrum nähert und entfernt,
-       entsteht AUTOMATISCH die schnelle Fahrt oben (Steinbock) und die langsame Fahrt unten (Krebs).
-    */
-    let pointerAngle = Math.atan2(exzenterX, exzenterY) * (180 / Math.PI);
-
-    // Zeiger ausrichten
-    pointerMc.style.transform = `rotate(${pointerAngle}deg)`;
-}
-
-window.addEventListener('scroll', updateClockwork);
+        window.addEventListener('scroll', updateClockwork);
+        // Sorgt dafür, dass sich die Mechanik auch beim Drehen des Handys oder Ändern des PC-Fensters sofort anpasst
+        window.addEventListener('resize', updateClockwork); 
     </script>
 
 </body>
