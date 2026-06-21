@@ -219,10 +219,10 @@
                Wenn das Bild z.B. 450px breit ist, entspricht ein Faktor von 0.133 exakt 60px.
                Schrumpft das Bild auf dem Handy auf 300px, schrumpft der Abstand automatisch auf 40px!
             */
-            let gearDistance = currentImageWidth * 0.250; 
+            let gearDistance = currentImageWidth * 0.3; 
             
             // Auch der Exzenter-Radius skaliert nun sauber prozentual mit der Bildgröße mit
-            let baseRadius = currentImageWidth * 0.077; // Entspricht ca. 35px bei einer 450px Grafik
+            let baseRadius = currentImageWidth * 0.15; // Entspricht ca. 35px bei einer 450px Grafik
             let exzenterRadius = baseRadius * (currentLatitude / 51.5); 
 
             // Visuelle Platzierung von Gear B korrigieren (Verschiebung nach unten im Code-Raum)
