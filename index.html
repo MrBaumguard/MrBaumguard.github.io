@@ -231,8 +231,8 @@
 
             // Asymmetrische Exzenter-Kopplung für den Zeiger
             let radians = angleB * (Math.PI / 180);
-            let exzenterX = Math.sin(radians) * exzenterRadius;
-            let exzenterY = gearDistance + (Math.cos(radians) * exzenterRadius);
+            let exzenterX = -Math.sin(radians) * exzenterRadius;
+            let exzenterY = gearDistance - (Math.cos(radians) * exzenterRadius);
 
             let pointerAngle = Math.atan2(exzenterX, exzenterY) * (180 / Math.PI);
             pointerMc.style.transform = `rotate(${pointerAngle}deg)`;
