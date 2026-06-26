@@ -19,30 +19,34 @@
             scroll-behavior: auto; 
         }
 
-        /* DAS GLOBALE UHRWERK-GEHÄUSE (STEUERT DIE TRANSPARENZ ALS GANZES) */
+                /* DAS GLOBALE UHRWERK-GEHÄUSE (JETZT ALS DETEKTIONIERTES QUADRAT) */
         .astrolabe-housing {
             position: fixed;
-            top: 50svh; /* Vertikale Zentrierung */
+            top: 50svh; /* Perfekte vertikale Zentrierung */
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 85vw; /* Nutzt 85% der Bildschirmbreite auf Handys */
-            max-width: 450px; /* Deckelung für große Desktop-Monitore */
-            height: auto;
-            pointer-events: none; /* Text im Vordergrund bleibt klickbar */
+            width: 85vw; 
+            max-width: 450px; 
             
-            /* HIER STELLST DU DIE HELLIGKEIT DER GESAMTEN UHR EIN:
-               Die Bauteile bleiben untereinander deckend, blenden aber gemeinsam ab. */
+            /* NEU: Wir zwingen das Gehäuse, ein perfektes Quadrat zu sein.
+               Dadurch liegt der mathematische Drehpunkt exakt im Screen-Center! */
+            aspect-ratio: 1 / 1; 
+            
+            pointer-events: none; 
             opacity: 0.45; 
         }
 
         /* DIE EINZELNEN EBENEN INNERHALB DES GEHÄUSES */
         .astrolabe-layer {
             position: absolute;
+            
+            /* NEU: Die Ebenen spannen sich jetzt exakt über das gesamte Quadrat */
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
         }
+
 
         /* Alle Bilder füllen ihre Ebene voll aus */
         .astrolabe-layer img {
