@@ -19,44 +19,44 @@
             scroll-behavior: auto; 
         }
 
-        /* STABILE BASIS-STYLES FÜR ALLE UHRWERK-EBENEN */
-        .astrolabe-layer {
+        /* DAS GLOBALE UHRWERK-GEHÄUSE (STEUERT DIE TRANSPARENZ ALS GANZES) */
+        .astrolabe-housing {
             position: fixed;
-            top: 50svh; /* Hält den gemeinsamen mathematischen Mittelpunkt im Viewport */
+            top: 50svh; /* Vertikale Zentrierung */
             left: 50%;
-            transform: translate(-50%, -50%); 
-            pointer-events: none;
-        }
-
-        /* Einheitliche, prozentuale Skalierung für alle mechanischen Bauteile */
-        .astrolabe-layer img {
+            transform: translate(-50%, -50%);
             width: 85vw; /* Nutzt 85% der Bildschirmbreite auf Handys */
             max-width: 450px; /* Deckelung für große Desktop-Monitore */
             height: auto;
+            pointer-events: none; /* Text im Vordergrund bleibt klickbar */
+            
+            /* HIER STELLST DU DIE HELLIGKEIT DER GESAMTEN UHR EIN:
+               Die Bauteile bleiben untereinander deckend, blenden aber gemeinsam ab. */
+            opacity: 0.45; 
+        }
+
+        /* DIE EINZELNEN EBENEN INNERHALB DES GEHÄUSES */
+        .astrolabe-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Alle Bilder füllen ihre Ebene voll aus */
+        .astrolabe-layer img {
+            width: 100%;
+            height: auto;
             display: block;
-            will-change: transform;
+            will-change: transform; /* Schiebt die Berechnung auf die GPU */
         }
 
-        /* EBENEN-HIERARCHIE (Z-INDEX) */
-        #layer-mater {
-            z-index: 1;
-            opacity: 1; /* Fester Hintergrund (AC/DC Horizont) */
-        }
-
-        #layer-gear-b {
-            z-index: 2;
-            opacity: 1; /* Umlenkrad unten */
-        }
-
-        #layer-zodiac-rete {
-            z-index: 3;
-            opacity: 1; /* Haupt-Zodiak-Scheibe */
-        }
-
-        #layer-pointer-mc {
-            z-index: 4;
-            opacity: 1; /* Der MC/IC-Zeiger ganz vorne */
-        }
+        /* EBENEN-HIERARCHIE (Reines Übereinanderlegen ohne Durchscheinen!) */
+        #layer-mater       { z-index: 1; }
+        #layer-gear-b      { z-index: 2; }
+        #layer-zodiac-rete { z-index: 3; }
+        #layer-pointer-mc  { z-index: 4; }
 
         /* Sanfte Dämpfung für die mechanischen Drehbewegungen */
         #zodiac-rete, #gear-b, #pointer-mc {
@@ -137,20 +137,24 @@
         <span id="btn-HK" onclick="changeLocation(22.3, 'HK')">HONG KONG°</span>
     </div>
 
-    <div class="astrolabe-layer" id="layer-mater">
-        <img src="mater.png" alt="Astrolabe Mater">
-    </div>
+    <div class="astrolabe-housing">
+        
+        <div class="astrolabe-layer" id="layer-mater">
+            <img src="mater.png" alt="Astrolabe Mater">
+        </div>
 
-    <div class="astrolabe-layer" id="layer-gear-b">
-        <img id="gear-b" src="gear_b.png" alt="Driven Gear B">
-    </div>
+        <div class="astrolabe-layer" id="layer-gear-b">
+            <img id="gear-b" src="gear_b.png" alt="Driven Gear B">
+        </div>
 
-    <div class="astrolabe-layer" id="layer-zodiac-rete">
-        <img id="zodiac-rete" src="zodiac_rete.png" alt="Zodiac Rete">
-    </div>
+        <div class="astrolabe-layer" id="layer-zodiac-rete">
+            <img id="zodiac-rete" src="zodiac_rete.png" alt="Zodiac Rete">
+        </div>
 
-    <div class="astrolabe-layer" id="layer-pointer-mc">
-        <img id="pointer-mc" src="pointer_mc.png" alt="MC/IC Pointer">
+        <div class="astrolabe-layer" id="layer-pointer-mc">
+            <img id="pointer-mc" src="pointer_mc.png" alt="MC/IC Pointer">
+        </div>
+
     </div>
 
     <div class="content">
@@ -197,6 +201,7 @@
         const zodiacRete = document.getElementById('zodiac-rete');
         const gearB = document.getElementById('gear-b');
         const pointerMc = document.getElementById('pointer-mc');
+        const astrolabeHousing = document.querySelector('.astrolabe-housing');
 
         function updateClockwork() {
             let scrollTop = window.scrollY;
@@ -205,41 +210,36 @@
 
             let scrollPercent = scrollTop / maxScroll;
             
-            // Basis-Rostationen
+            // Basis-Rotationen
             let angleA = scrollPercent * 360;
             zodiacRete.style.transform = `rotate(${angleA}deg)`;
             
             let angleB = -angleA;
 
-            // DYNAMISCHE SKALIERUNG (Der Schlüssel zur Responsivität):
-            // Wir messen live, wie viele Pixel das Zahnrad-Bild GERADE AUF DEM BILDSCHIRM breit ist
-            let currentImageWidth = zodiacRete.clientWidth;
+            // DYNAMISCHE SKALIERUNG (Misst die aktuelle Breite des gesamten Gehäuses)
+            let currentImageWidth = astrolabeHousing.clientWidth;
 
             /* PROZENTUALE ABSTÄNDE BEZOGEN AUF DIE BILDGRÖSSE:
-               Wenn das Bild z.B. 450px breit ist, entspricht ein Faktor von 0.133 exakt 60px.
-               Schrumpft das Bild auf dem Handy auf 300px, schrumpft der Abstand automatisch auf 40px!
-            */
+               Nutzt deine kalibrierten Faktoren für Getriebeabstand und Exzenter-Radius. */
             let gearDistance = currentImageWidth * 0.27; 
             
-            // Auch der Exzenter-Radius skaliert nun sauber prozentual mit der Bildgröße mit
-            let baseRadius = currentImageWidth * 0.175; // Entspricht ca. 35px bei einer 450px Grafik
+            let baseRadius = currentImageWidth * 0.175; 
             let exzenterRadius = baseRadius * (currentLatitude / 51.5); 
 
-            // Visuelle Platzierung von Gear B korrigieren (Verschiebung nach unten im Code-Raum)
-            // Wir nutzen Translate im JS, damit sich die Achse exakt mitbewegt!
+            // Visuelle Platzierung von Gear B (Verschiebung nach unten via JS-Translate)
             gearB.style.transform = `translateY(${gearDistance}px) rotate(${angleB}deg)`;
 
-            // Asymmetrische Exzenter-Kopplung für den Zeiger
+            // ASYMMETRISCHE EXZENTER-KOPPLUNG (Obere Verankerung für Krebs/Steinbock-Dynamik)
             let radians = angleB * (Math.PI / 180);
             let exzenterX = -Math.sin(radians) * exzenterRadius;
             let exzenterY = gearDistance - (Math.cos(radians) * exzenterRadius);
 
+            // Mathematischer Einlauf über atan2 für die exakte Ausrichtung des Zeigers
             let pointerAngle = Math.atan2(exzenterX, exzenterY) * (180 / Math.PI);
             pointerMc.style.transform = `rotate(${pointerAngle}deg)`;
         }
 
         window.addEventListener('scroll', updateClockwork);
-        // Sorgt dafür, dass sich die Mechanik auch beim Drehen des Handys oder Ändern des PC-Fensters sofort anpasst
         window.addEventListener('resize', updateClockwork); 
     </script>
 
