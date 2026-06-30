@@ -27,8 +27,11 @@
             transform: translate(-50%, -50%);
             width: 85vw; 
             max-width: 450px; 
-            aspect-ratio: 1 / 1; 
-            pointer-events: none; 
+            aspect-ratio: 1 / 1; /* Zwingt das Gehäuse in ein perfektes Quadrat */
+            pointer-events: none; /* Text im Vordergrund bleibt klickbar */
+            
+            /* HIER STELLST DU DIE HELLIGKEIT DER GESAMTEN UHR EIN:
+               Die Bauteile bleiben untereinander deckend, blenden aber gemeinsam ab. */
             opacity: 0.45; 
         }
 
@@ -181,16 +184,16 @@
     <script>
         let currentLatitude = 51.5; // Startwert London
         
-        // Globale Variablen zur Verfolgung der permanenten Aspekten-Rotation
+        // Globale Variablen für die unaufhaltsame Vorwärtsbewegung der Rete
         let lastScrollTop = 0;
-        let aspectsAngle = 0; 
-        const aspectsSpeedFactor = 0.5; // Deine gewünschte Startgeschwindigkeit (Später hier anpassen)
+        let permanentZodiacAngle = 0; 
+        const zodiacSpeedFactor = 0.5; // Geschwindigkeit der vorwärtslaufenden Rete (hier feintunen)
 
         // 1. MITTELSTART BEIM LADEN
         document.addEventListener("DOMContentLoaded", () => {
             const middleOfPage = (document.documentElement.scrollHeight - window.innerHeight) / 2;
             window.scrollTo(0, middleOfPage);
-            lastScrollTop = window.scrollY; // Setzt den Startpunkt nach dem automatischen Scrollen
+            lastScrollTop = window.scrollY; // Setzt den Startpunkt nach dem automatischen Zentrieren
             
             setTimeout(() => {
                 document.documentElement.style.scrollBehavior = "smooth";
@@ -205,7 +208,7 @@
             updateClockwork();
         }
 
-        // 3. RESPONSIVE GETRIEBE-BERECHNUNG
+        // 3. REVOLUTIONIERTE MECHANISCHE UMPOHLUNG
         const zodiacRete = document.getElementById('zodiac-rete');
         const gearB = document.getElementById('gear-b');
         const pointerMc = document.getElementById('pointer-mc');
@@ -217,42 +220,40 @@
             let maxScroll = document.documentElement.scrollHeight - window.innerHeight;
             if (maxScroll <= 0) return;
 
-            // --- BERECHNUNG FÜR DIE PERMANENTE VORWÄRTSBEWEGUNG (ASPECTS) ---
-            // Berechnet den reinen Delta-Wert der Bewegung, ungeachtet der Richtung
-            let scrollDelta = Math.abs(scrollTop - lastScrollTop);
-            
-            // Rechnet das Scroll-Delta in einen Rotationswinkel um und multipliziert mit dem Faktor
-            aspectsAngle += (scrollDelta / maxScroll) * 360 * aspectsSpeedFactor;
-            
-            // Aktualisiert den letzten Stand für den nächsten Scroll-Impuls
-            lastScrollTop = scrollTop;
-
-            // Rotation auf das Element anwenden
+            // --- 1. ASPECTS: STARR AN DEN SCROLL-WEG KOPPELN (0° bis 360°) ---
+            let scrollPercent = scrollTop / maxScroll;
+            let aspectsAngle = scrollPercent * 360;
             aspects.style.transform = `rotate(${aspectsAngle}deg)`;
 
 
-            // --- STANDARDSCHLEIFEN FÜR RETE UND GETRIEBE ---
-            let scrollPercent = scrollTop / maxScroll;
-            let angleA = scrollPercent * 360;
-            zodiacRete.style.transform = `rotate(${angleA}deg)`;
+            // --- 2. ZODIAC RETE: UNTERSCHÜTTERLICHE VORWÄRTSBEWEGUNG ---
+            let scrollDelta = Math.abs(scrollTop - lastScrollTop);
+            permanentZodiacAngle += (scrollDelta / maxScroll) * 360 * zodiacSpeedFactor;
+            lastScrollTop = scrollTop;
+
+            // Haupt-Tierkreis vorwärts drehen
+            zodiacRete.style.transform = `rotate(${permanentZodiacAngle}deg)`;
             
-            let angleB = -angleA;
+            
+            // --- 3. GETRIEBE-KOPPLUNG (Synchronisiert mit der neuen Rete-Rotation) ---
+            // Gear B kontert die Rete-Drehung exakt spiegelverkehrt
+            let angleB = -permanentZodiacAngle;
 
-            // DYNAMISCHE SKALIERUNG
+            // Dynamische Skalierung für die Geometrie live abgreifen
             let currentImageWidth = astrolabeHousing.clientWidth;
-
             let gearDistance = currentImageWidth * 0.27; 
             let baseRadius = currentImageWidth * 0.175; 
             let exzenterRadius = baseRadius * (currentLatitude / 51.5); 
 
-            // Visuelle Platzierung von Gear B
+            // Gear B verschieben und rotieren
             gearB.style.transform = `translateY(${gearDistance}px) rotate(${angleB}deg)`;
 
-            // ASYMMETRISCHE EXZENTER-KOPPLUNG
+            // Exzenter-Berechnung für den MC-Zeiger auf der oberen Halbkugel von Gear B
             let radians = angleB * (Math.PI / 180);
             let exzenterX = -Math.sin(radians) * exzenterRadius;
             let exzenterY = gearDistance - (Math.cos(radians) * exzenterRadius);
 
+            // Ausrichtung des Zeigers über die trigonometrische Tangente (atan2)
             let pointerAngle = Math.atan2(exzenterX, exzenterY) * (180 / Math.PI);
             pointerMc.style.transform = `rotate(${pointerAngle}deg)`;
         }
