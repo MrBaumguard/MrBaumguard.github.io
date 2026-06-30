@@ -19,7 +19,7 @@
             scroll-behavior: auto; 
         }
 
-                /* DAS GLOBALE UHRWERK-GEHÄUSE (JETZT ALS DETEKTIONIERTES QUADRAT) */
+        /* DAS GLOBALE UHRWERK-GEHÄUSE (STEUERT DIE TRANSPARENZ ALS GANZES) */
         .astrolabe-housing {
             position: fixed;
             top: 50svh; /* Perfekte vertikale Zentrierung */
@@ -27,11 +27,7 @@
             transform: translate(-50%, -50%);
             width: 85vw; 
             max-width: 450px; 
-            
-            /* NEU: Wir zwingen das Gehäuse, ein perfektes Quadrat zu sein.
-               Dadurch liegt der mathematische Drehpunkt exakt im Screen-Center! */
             aspect-ratio: 1 / 1; 
-            
             pointer-events: none; 
             opacity: 0.45; 
         }
@@ -39,14 +35,11 @@
         /* DIE EINZELNEN EBENEN INNERHALB DES GEHÄUSES */
         .astrolabe-layer {
             position: absolute;
-            
-            /* NEU: Die Ebenen spannen sich jetzt exakt über das gesamte Quadrat */
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
         }
-
 
         /* Alle Bilder füllen ihre Ebene voll aus */
         .astrolabe-layer img {
@@ -56,14 +49,15 @@
             will-change: transform; /* Schiebt die Berechnung auf die GPU */
         }
 
-        /* EBENEN-HIERARCHIE (Reines Übereinanderlegen ohne Durchscheinen!) */
-        #layer-mater       { z-index: 1; }
-        #layer-gear-b      { z-index: 2; }
-        #layer-zodiac-rete { z-index: 3; }
-        #layer-pointer-mc  { z-index: 4; }
+        /* EBENEN-HIERARCHIE (Hierarchisch sauber geschachtelt) */
+        #layer-mater         { z-index: 1; }
+        #layer-gear-b        { z-index: 2; }
+        #layer-zodiac-rete   { z-index: 3; }
+        #layer-astrological-aspects { z-index: 4; } /* Über der Rete, unter dem MC Zeiger */
+        #layer-pointer-mc    { z-index: 5; }
 
         /* Sanfte Dämpfung für die mechanischen Drehbewegungen */
-        #zodiac-rete, #gear-b, #pointer-mc {
+        #zodiac-rete, #gear-b, #pointer-mc, #aspects {
             transition: transform 0.1s ease-out;
         }
 
@@ -155,6 +149,10 @@
             <img id="zodiac-rete" src="zodiac_rete.png" alt="Zodiac Rete">
         </div>
 
+        <div class="astrolabe-layer" id="layer-astrological-aspects">
+            <img id="aspects" src="aspects.png" alt="Astrological Aspects">
+        </div>
+
         <div class="astrolabe-layer" id="layer-pointer-mc">
             <img id="pointer-mc" src="pointer_mc.png" alt="MC/IC Pointer">
         </div>
@@ -182,11 +180,17 @@
 
     <script>
         let currentLatitude = 51.5; // Startwert London
+        
+        // Globale Variablen zur Verfolgung der permanenten Aspekten-Rotation
+        let lastScrollTop = 0;
+        let aspectsAngle = 0; 
+        const aspectsSpeedFactor = 0.5; // Deine gewünschte Startgeschwindigkeit (Später hier anpassen)
 
         // 1. MITTELSTART BEIM LADEN
         document.addEventListener("DOMContentLoaded", () => {
             const middleOfPage = (document.documentElement.scrollHeight - window.innerHeight) / 2;
             window.scrollTo(0, middleOfPage);
+            lastScrollTop = window.scrollY; // Setzt den Startpunkt nach dem automatischen Scrollen
             
             setTimeout(() => {
                 document.documentElement.style.scrollBehavior = "smooth";
@@ -205,6 +209,7 @@
         const zodiacRete = document.getElementById('zodiac-rete');
         const gearB = document.getElementById('gear-b');
         const pointerMc = document.getElementById('pointer-mc');
+        const aspects = document.getElementById('aspects');
         const astrolabeHousing = document.querySelector('.astrolabe-housing');
 
         function updateClockwork() {
@@ -212,33 +217,42 @@
             let maxScroll = document.documentElement.scrollHeight - window.innerHeight;
             if (maxScroll <= 0) return;
 
-            let scrollPercent = scrollTop / maxScroll;
+            // --- BERECHNUNG FÜR DIE PERMANENTE VORWÄRTSBEWEGUNG (ASPECTS) ---
+            // Berechnet den reinen Delta-Wert der Bewegung, ungeachtet der Richtung
+            let scrollDelta = Math.abs(scrollTop - lastScrollTop);
             
-            // Basis-Rotationen
+            // Rechnet das Scroll-Delta in einen Rotationswinkel um und multipliziert mit dem Faktor
+            aspectsAngle += (scrollDelta / maxScroll) * 360 * aspectsSpeedFactor;
+            
+            // Aktualisiert den letzten Stand für den nächsten Scroll-Impuls
+            lastScrollTop = scrollTop;
+
+            // Rotation auf das Element anwenden
+            aspects.style.transform = `rotate(${aspectsAngle}deg)`;
+
+
+            // --- STANDARDSCHLEIFEN FÜR RETE UND GETRIEBE ---
+            let scrollPercent = scrollTop / maxScroll;
             let angleA = scrollPercent * 360;
             zodiacRete.style.transform = `rotate(${angleA}deg)`;
             
             let angleB = -angleA;
 
-            // DYNAMISCHE SKALIERUNG (Misst die aktuelle Breite des gesamten Gehäuses)
+            // DYNAMISCHE SKALIERUNG
             let currentImageWidth = astrolabeHousing.clientWidth;
 
-            /* PROZENTUALE ABSTÄNDE BEZOGEN AUF DIE BILDGRÖSSE:
-               Nutzt deine kalibrierten Faktoren für Getriebeabstand und Exzenter-Radius. */
             let gearDistance = currentImageWidth * 0.27; 
-            
             let baseRadius = currentImageWidth * 0.175; 
             let exzenterRadius = baseRadius * (currentLatitude / 51.5); 
 
-            // Visuelle Platzierung von Gear B (Verschiebung nach unten via JS-Translate)
+            // Visuelle Platzierung von Gear B
             gearB.style.transform = `translateY(${gearDistance}px) rotate(${angleB}deg)`;
 
-            // ASYMMETRISCHE EXZENTER-KOPPLUNG (Obere Verankerung für Krebs/Steinbock-Dynamik)
+            // ASYMMETRISCHE EXZENTER-KOPPLUNG
             let radians = angleB * (Math.PI / 180);
             let exzenterX = -Math.sin(radians) * exzenterRadius;
             let exzenterY = gearDistance - (Math.cos(radians) * exzenterRadius);
 
-            // Mathematischer Einlauf über atan2 für die exakte Ausrichtung des Zeigers
             let pointerAngle = Math.atan2(exzenterX, exzenterY) * (180 / Math.PI);
             pointerMc.style.transform = `rotate(${pointerAngle}deg)`;
         }
